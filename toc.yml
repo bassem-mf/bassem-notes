@@ -1,0 +1,18 @@
+- name: Welcome
+  href: /
+  homepage: welcome.md
+- name: Web Technologies
+  href: web-technologies/
+  homepage: web-technologies/introduction.md
+- name: .NET Ecosystem
+  href: dotnet-ecosystem/
+  homepage: dotnet-ecosystem/introduction.md
+- name: Linux
+  href: linux/
+  homepage: linux/introduction.md
+- name: Bitcoin
+  href: bitcoin/
+  homepage: bitcoin/introduction.md
+- name: Misc
+  href: misc/
+  homepage: misc/introduction.md
