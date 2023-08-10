@@ -3,16 +3,8 @@
     "content": [
       {
         "files": [
-          "bitcoin/**.md",
-          "bitcoin/**/toc.yml",
-          "dotnet-ecosystem/**.md",
-          "dotnet-ecosystem/**/toc.yml",
-          "linux/**.md",
-          "linux/**/toc.yml",
-          "misc/**.md",
-          "misc/**/toc.yml",
-          "web-technologies/**.md",
-          "web-technologies/**/toc.yml",
+          "software/**.md",
+          "software/**/toc.yml",
           "toc.yml",
           "*.md"
         ]
