@@ -2,3 +2,5 @@
   href: /software/
 - name: .NET
   href: dotnet/toc.yml
+- name: Miscellaneous
+  href: misc/toc.yml
