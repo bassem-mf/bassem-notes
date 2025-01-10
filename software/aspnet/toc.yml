@@ -1,2 +1,4 @@
 - name: Serve Static Site With ASP.NET and Kestrel
   href: serve-static-site-with-aspnet-and-kestrel.md
+- name: Use YARP to Serve Multiple Web Apps From the Same Server
+  href: use-yarp-to-serve-multiple-web-apps-from-same-server.md

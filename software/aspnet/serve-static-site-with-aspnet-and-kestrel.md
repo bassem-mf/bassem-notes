@@ -32,12 +32,12 @@
     app.Run();
     ```
 
-    [app.UseForwardedHeaders()](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.builder.forwardedheadersextensions.useforwardedheaders) is needed only if this ASP.NET application will be deployed as a back-end server behind a reverse proxy server like YARP or Nginx. This call adds and configures the [ForwardedHeadersMiddleware](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.httpoverrides.forwardedheadersmiddleware) to set `HttpContext.Connection.RemoteIpAddress` using the `X-Forwarded-For` header value, and set `HttpContext.Request.Scheme` using the `X-Forwarded-Proto` header value.
+    [`app.UseForwardedHeaders()`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.builder.forwardedheadersextensions.useforwardedheaders) is needed only if this ASP.NET application will be deployed as a back-end server behind a reverse proxy server like YARP or Nginx. This call adds and configures the [`ForwardedHeadersMiddleware`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.httpoverrides.forwardedheadersmiddleware) to set `HttpContext.Connection.RemoteIpAddress` using the `X-Forwarded-For` header value, and set `HttpContext.Request.Scheme` using the `X-Forwarded-Proto` header value.
 
-    [app.UseFileServer()](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.builder.fileserverextensions.usefileserver) without any arguments adds two middleware:
+    [`app.UseFileServer()`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.builder.fileserverextensions.usefileserver) without any arguments adds two middleware:
     
-    * [StaticFileMiddleware](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.staticfiles.staticfilemiddleware) which enables the serving of static files placed under the "wwwroot" folder.
-    * [DefaultFilesMiddleware](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.staticfiles.defaultfilesmiddleware) rewrites URLs to enabled the serving of default files from "wwwroot" without requiring the request URL to include the file's name. So a request to "www.mywebsite.com" can return "wwwroot/index.html" if it exists. And a request to "www.mywebsite.com/dir" can return "wwwroot/dir/index.html" if it exists.
+    * [`StaticFileMiddleware`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.staticfiles.staticfilemiddleware) which enables the serving of static files placed under the "wwwroot" folder.
+    * [`DefaultFilesMiddleware`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.staticfiles.defaultfilesmiddleware) rewrites URLs to enabled the serving of default files from "wwwroot" without requiring the request URL to include the file's name. So a request to "www.mywebsite.com" can return "wwwroot/index.html" if it exists. And a request to "www.mywebsite.com/dir" can return "wwwroot/dir/index.html" if it exists.
 
 3. Trust the ASP.NET HTTPS development certificate if it is not already trusted.
 
@@ -100,8 +100,8 @@
                 "Https": {
                     "Url": "https://*:443",
                     "Certificate": {
-                        "Path": "/path/to/full/chain/file",
-                        "KeyPath": "/path/to/private/key/file"
+                        "Path": "<path to fullchain file>",
+                        "KeyPath": "<path to private key file>"
                     }
                 }
             }
@@ -138,7 +138,7 @@
     dotnet publish -c Release
     ```
 
-    Then upload the contents of "<project root>/bin/Release/<.NET version>/publish/" to your server.
+    Then upload the contents of "\<project root\>/bin/Release/\<.NET version\>/publish/" to your server.
 
 9. On the server, use a service manager to run the ASP.NET application on system startup as a daemon. The service manager should also restart the application if it crashes. On Linux, you will typically use "systemd".
 
@@ -152,17 +152,25 @@
     WorkingDirectory=/var/www/www.example.com
     ExecStart=/path/to/dotnet /var/www/www.example.com/StaticSiteServer.dll
     Restart=always
-    # Restart service after 10 seconds if the dotnet service crashes:
+    # Restart service after 10 seconds if the dotnet service crashes
     RestartSec=10
     KillSignal=SIGINT
     SyslogIdentifier=www.example.com
     User=exampleuser
+    # CAP_NET_BIND_SERVICE is needed only if the server is a public-facing edge server that
+    # will bind to ports 80 and 443
+    AmbientCapabilities=CAP_NET_BIND_SERVICE
     Environment=ASPNETCORE_ENVIRONMENT=Production
     Environment=DOTNET_NOLOGO=true
 
     [Install]
     WantedBy=multi-user.target
     ```
+
+    If you configured the application to be a public-facing edge server:
+
+    * Make sure that the user ("exampleuser" in the example above) has read access to the certificate files needed by Kestrel. This may include private key files.
+    * Include the line `AmbientCapabilities=CAP_NET_BIND_SERVICE` to permits the unprivileged process (a process owned by a user other than "root") to bind to privileged ports (port numbers less than 1024). This is needed because the application needs to bind to the standard HTTP and HTTPS ports (80 and 443 respectively).
 
     Use the `systemctl enable` command to enable the systemd service so the web application runs on system startup. And include the `--now` flag to also start the application right away.
 
@@ -184,10 +192,7 @@
     sudo journalctl -u kestrel-www.example.com.service
     ```
 
-10. The remaining 2 steps are beyond the scope of this article.
-
-    * Configure your DNS server to point the hostname to your Web server IP.
-    * If you configured the ASP.NET application to run as a back-end server, then you will need to setup and configure a reverse proxy server like YARP or Nginx.
+10. If you configured the ASP.NET application to run as a back-end server, then you will need to [setup and configure a reverse proxy server](use-yarp-to-serve-multiple-web-apps-from-same-server.md).
 
 ## References
 
@@ -197,3 +202,5 @@
 * [Host filtering with ASP.NET Core Kestrel web server](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/host-filtering)
 * [Host ASP.NET Core on Linux with Nginx](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/linux-nginx)
 * [Configure ASP.NET Core to work with proxy servers and load balancers](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer)
+* [systemd execution environment configuration (AmbientCapabilities)](https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#AmbientCapabilities=)
+* [Linux capabilities](https://man7.org/linux/man-pages/man7/capabilities.7.html) "CAP_NET_BIND_SERVICE" section
