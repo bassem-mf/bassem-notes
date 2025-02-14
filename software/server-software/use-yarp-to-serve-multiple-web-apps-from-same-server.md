@@ -13,7 +13,7 @@ ASP.NET Core applications typically use the in-process HTTP server "Kestrel". Di
 2. Bind the web applications to non-standard ports. This is not a good solution if users are going to access these web applications by typing URLs in a browser.
 3. Use a reverse proxy like YARP or Nginx. The reverse proxy can listen on the standard HTTP and HTTPS ports. And forward each request to the intended web application which can be determined by the "Host" header value, or path, or any other data in the request header. Each web application listens on a unique, non-standard port. And receives HTTP requests from the reverse proxy, not from the client directly. The web application returns the HTTP response to the proxy. And the proxy forwards the response to the client. This configuration is depicted in the diagram below.
 
-![Web apps behind a reverse proxy on the same machine](/images/software/aspnet/web-apps-behind-reverse-proxy-on-same-machine.webp)
+![Web apps behind a reverse proxy on the same machine](/images/software/server-software/web-apps-behind-reverse-proxy-on-same-machine.webp)
 
 This post will explain how to implement the third solution using YARP as the reverse proxy.
 

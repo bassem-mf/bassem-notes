@@ -2,3 +2,5 @@
   href: serve-static-site-with-aspnet-and-kestrel.md
 - name: Use YARP to Serve Multiple Web Apps From the Same Server
   href: use-yarp-to-serve-multiple-web-apps-from-same-server.md
+- name: Get and Auto-Renew TLS Certificates
+  href: get-and-auto-renew-tls-certificates.md
