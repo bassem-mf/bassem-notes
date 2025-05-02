@@ -1,2 +1,4 @@
 - name: Install Multiple .NET Versions on Linux
   href: linux-install-multiple.md
+- name: Get Enum Value Display Name
+  href: get-enum-value-display-name.md
